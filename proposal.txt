@@ -1,0 +1,21 @@
+Project Title: Cafe Rush Hour Simulation
+
+Project Overview:
+
+My project will simulate the flow of customers through a cafe over 25 minutes. The program will track customers as they wait to order, have their drinks prepared, and pick up their completed orders. The simulation will demonstrate how the number of customers and orders at different stations changes over time, especially during busy periods.
+
+Implementation:
+
+The program will use a std::map with a string key and a value consisting of a three-element std::array of std::lists. Each map key will represent a station in the cafe: the order line, drink preparation area, or pickup counter. Each array will contain three lists representing customer names, order types, and order statuses. This structure will organize information about the customers at each station.
+
+The program will read initial customer and order information from an external text file. The file will contain at least 100 lines of data. Each record will include a station, customer name, order type, and order status. A function will display the contents of the map in a readable format.
+
+Simulation:
+
+The simulation will run for 25 time periods, with each period representing one minute. At the beginning, the program will display the initial state of the coffee shop. During each minute, new customers may arrive, orders may move to the preparation area, and completed drinks may move to the pickup counter. These events will change the information stored in the map.
+
+After each time period, the program will display the updated state of the coffee shop. At the end of the simulation, it will display the final state so that changes in customer flow and order progress can be observed.
+
+Expected Results:
+
+The program will demonstrate how a nested data structure can organize information and how a discrete-event simulation can represent a process over time. It will show how customer arrivals and order preparation affect activity at different stations. This will be a simplified simulation for educational purposes rather than an exact prediction of a real cafe's operations.
