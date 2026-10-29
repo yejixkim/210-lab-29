@@ -1,0 +1,67 @@
+
+Unit Testing Plan: Coffee Shop Rush Hour Simulation
+
+I will unit test the moveCustomer function to make sure it correctly moves a customer from one station to another. I will create a ShopData map with one customer and call the function. Then, I will check that the customer name, order, and status are correct at the destination station and that the source station is empty. The test will print "Unit test passed!" if all conditions are true. Otherwise, it will print "Unit test failed!"
+
+Unit Test Driver:
+
+#include <iostream>
+#include <string>
+#include <map>
+#include <array>
+#include <list>
+using namespace std;
+
+using ShopData = map<string, array<list<string>, 3>>;
+
+void moveCustomer(ShopData& shop, const string& from,
+                  const string& to, const string& newStatus) {
+    if (shop[from][0].empty()) {
+        return;
+    }
+
+    string customer = shop[from][0].front();
+    string order = shop[from][1].front();
+
+    shop[from][0].pop_front();
+    shop[from][1].pop_front();
+    shop[from][2].pop_front();
+
+    shop[to][0].push_back(customer);
+    shop[to][1].push_back(order);
+    shop[to][2].push_back(newStatus);
+}
+
+int main() {
+    ShopData shop;
+
+    // Create one test customer.
+    shop["Order Line"][0].push_back("Alice");
+    shop["Order Line"][1].push_back("Latte");
+    shop["Order Line"][2].push_back("Waiting");
+
+    // Move Alice to drink preparation.
+    moveCustomer(shop, "Order Line",
+                 "Drink Preparation", "Preparing");
+
+    // Check the results.
+    bool sourceEmpty = shop["Order Line"][0].empty();
+    bool correctCustomer =
+        !shop["Drink Preparation"][0].empty() &&
+        shop["Drink Preparation"][0].front() == "Alice";
+    bool correctOrder =
+        !shop["Drink Preparation"][1].empty() &&
+        shop["Drink Preparation"][1].front() == "Latte";
+    bool correctStatus =
+        !shop["Drink Preparation"][2].empty() &&
+        shop["Drink Preparation"][2].front() == "Preparing";
+
+    if (sourceEmpty && correctCustomer &&
+        correctOrder && correctStatus) {
+        cout << "Unit test passed!" << endl;
+    } else {
+        cout << "Unit test failed!" << endl;
+    }
+
+    return 0;
+}
