@@ -1,4 +1,4 @@
-// COMSC 210 | Lab 29 | Yeji Kim
+// COMSC 210 | Lab 31 | Yeji Kim
 // Cafe Rush Hour Simulation
 
 #include <iostream>
@@ -123,14 +123,14 @@ void moveCustomer(ShopData& shop, const string& from,
 }
 
 void simulateMinute(ShopData& shop, int minute) {
-    // Move a customer to drink preparation at minute 1.
-    if (minute == 1) {
+    // Move one waiting customer to drink preparation each odd minute.
+    if (minute % 2 == 1) {
         moveCustomer(shop, "Order Line",
                      "Drink Preparation", "Preparing");
     }
 
-    // Move the prepared drink to pickup at minute 2.
-    if (minute == 2) {
+    // Move one prepared drink to pickup each even minute.
+    if (minute % 2 == 0) {
         moveCustomer(shop, "Drink Preparation",
                      "Pickup Counter", "Ready for pickup");
     }
