@@ -48,3 +48,18 @@
 - **Fix:** Updated the validation to check whether the input line ends with a comma.
 - **Testing:** Retested using test_trailing_comma.txt. The program printed "Skipping invalid record" and displayed zero customers at all three stations.
 - **Status:** Fixed and passed testing.
+
+## Bug 9: Starting Station Ignored
+- **Problem:** The program originally ignored the starting station specified in `data.txt` and placed every arriving customer in Order Line.
+- **How it was found:** Tested a customer record with `Drink Preparation` as the starting station.
+- **Fix:** Added a station field to the `Customer` struct, stored each customer's assigned station, and placed arriving customers in that station.
+- **Testing:** Confirmed that Alice appeared in Drink Preparation at Minute 0 and moved to Pickup Counter at Minute 1.
+- **Status:** Fixed and passed testing.
+
+## Bug 10: Blank Input Line Handling
+- **Problem:** The program could attempt to access the last character of an empty input line when checking for a trailing comma.
+- **Cause:** Calling `line.back()` on an empty string can cause undefined behavior.
+- **How it was found:** Tested the program with a blank line at the beginning of `data.txt`.
+- **Fix:** Added `!line.empty()` before checking `line.back()` to ensure the string is not empty.
+- **Testing:** The program printed `Skipping invalid record` for the blank line and continued processing all 100 valid customer records.
+- **Status:** Fixed and passed testing.

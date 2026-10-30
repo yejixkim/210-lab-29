@@ -39,6 +39,7 @@ struct Customer {
     string name;
     string order;
     string status;
+    string station;
     int arrivalTime;
 };
 
@@ -53,14 +54,14 @@ void assignArrivalTimes(vector<Customer>& customers) {
     }
 }
 
-// Create function that moves arriving customers into the order line.
+// Add arriving customers to their assigned starting stations.
 void addArrivingCustomers(vector<Customer>& customers,
-                         ShopData& shop, int currentMinute) {
+                          ShopData& shop, int currentMinute) {
     for (Customer& customer : customers) {
         if (customer.arrivalTime == currentMinute) {
-            shop["Order Line"][0].push_back(customer.name);
-            shop["Order Line"][1].push_back(customer.order);
-            shop["Order Line"][2].push_back(customer.status);
+            shop[customer.station][0].push_back(customer.name);
+            shop[customer.station][1].push_back(customer.order);
+            shop[customer.station][2].push_back(customer.status);
 
             cout << customer.name << " arrived at the coffee shop."
                  << endl;
@@ -71,7 +72,7 @@ void addArrivingCustomers(vector<Customer>& customers,
 int main() {
     // Create the map for the coffee shop.
     ShopData shop;
-    shop["Order Line"];
+shop["Order Line"];
 shop["Drink Preparation"];
 shop["Pickup Counter"];
 
@@ -100,7 +101,7 @@ getline(ss, status, ',');
 
 string extra;
 bool hasExtraField = static_cast<bool>(getline(ss, extra, ',')) ||
-                     line.back() == ',';
+                     (!line.empty() && line.back() == ',');
 
 if ((station != "Order Line" &&
      station != "Drink Preparation" &&
@@ -119,6 +120,7 @@ Customer newCustomer;
 newCustomer.name = customer;
 newCustomer.order = order;
 newCustomer.status = status;
+newCustomer.station = station;
 newCustomer.arrivalTime = 0;
 
 customers.push_back(newCustomer);
