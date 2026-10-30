@@ -1,4 +1,4 @@
-// COMSC 210 | Lab 29 | Yeji Kim
+// COMSC 210 | Lab 31 | Yeji Kim
 // Cafe Rush Hour Simulation
 
 #include <iostream>
@@ -8,6 +8,10 @@
 #include <map>
 #include <array>
 #include <list>
+#include <algorithm>
+#include <cctype>
+#include <random>
+#include <vector>
 
 using namespace std;
 
@@ -24,9 +28,53 @@ void moveCustomer(ShopData& shop, const string& from,
                   const string& to, const string& newStatus);
 void simulateMinute(ShopData& shop, int minute);
 
+bool containsOnlySpaces(const string& text) {
+    return !text.empty() &&
+           all_of(text.begin(), text.end(),
+                  [](unsigned char c) { return isspace(c); });
+}
+
+// Create structure to store customer info.
+struct Customer {
+    string name;
+    string order;
+    string status;
+    string station;
+    int arrivalTime;
+};
+
+// Generate random customer arrival times.
+void assignArrivalTimes(vector<Customer>& customers) {
+    random_device rd;
+    mt19937 gen(rd());
+    uniform_int_distribution<> arrivalDist(0, 24);
+
+    for (Customer& customer : customers) {
+        customer.arrivalTime = arrivalDist(gen);
+    }
+}
+
+// Add arriving customers to their assigned starting stations.
+void addArrivingCustomers(vector<Customer>& customers,
+                          ShopData& shop, int currentMinute) {
+    for (Customer& customer : customers) {
+        if (customer.arrivalTime == currentMinute) {
+            shop[customer.station][0].push_back(customer.name);
+            shop[customer.station][1].push_back(customer.order);
+            shop[customer.station][2].push_back(customer.status);
+
+            cout << customer.name << " arrived at the coffee shop."
+                 << endl;
+        }
+    }
+}
+
 int main() {
     // Create the map for the coffee shop.
     ShopData shop;
+shop["Order Line"];
+shop["Drink Preparation"];
+shop["Pickup Counter"];
 
     // Open the external data file.
     ifstream fin("data.txt");
@@ -39,62 +87,96 @@ int main() {
     // Read customer records from the file.
     string line;
 
+    vector<Customer> customers;
+
     while (getline(fin, line)) {
         stringstream ss(line);
 
         string station, customer, order, status;
 
         getline(ss, station, ',');
-        getline(ss, customer, ',');
-        getline(ss, order, ',');
-        getline(ss, status);
+getline(ss, customer, ',');
+getline(ss, order, ',');
+getline(ss, status, ',');
 
-        // Store the information in the station's three lists.
-        shop[station][0].push_back(customer);
-        shop[station][1].push_back(order);
-        shop[station][2].push_back(status);
+string extra;
+bool hasExtraField = static_cast<bool>(getline(ss, extra, ',')) ||
+                     (!line.empty() && line.back() == ',');
+
+if ((station != "Order Line" &&
+     station != "Drink Preparation" &&
+     station != "Pickup Counter") ||
+    station.empty() || containsOnlySpaces(station) ||
+    customer.empty() || containsOnlySpaces(customer) ||
+    order.empty() || containsOnlySpaces(order) ||
+    status.empty() || containsOnlySpaces(status) ||
+    hasExtraField) {
+    cout << "Skipping invalid record: " << line << endl;
+    continue;
+}
+
+// Store valid records in the station's three lists.
+Customer newCustomer;
+newCustomer.name = customer;
+newCustomer.order = order;
+newCustomer.status = status;
+newCustomer.station = station;
+newCustomer.arrivalTime = 0;
+
+customers.push_back(newCustomer);
     }
 
     fin.close();
 
+    assignArrivalTimes(customers);
+
     // Display the initial state.
-    cout << "INITIAL COFFEE SHOP STATE\n";
-    displayShop(shop);
+cout << "INITIAL COFFEE SHOP STATE\n";
+displayShop(shop);
 
-    // Simulate 25 one-minute time periods.
-    for (int minute = 1; minute <= 25; minute++) {
-        cout << "\nMinute " << minute << endl;
+// Simulate 25 one-minute time periods.
+for (int minute = 0; minute <= 24; minute++) {
+    cout << "\nMinute " << minute << endl;
 
-        // Simulate changes at each station.
+    // Add customers scheduled to arrive.
+    addArrivingCustomers(customers, shop, minute);
+
+    // Simulate changes at each station.
+    if (minute > 0) {
         simulateMinute(shop, minute);
-
-        // Display the updated state.
-        displayShop(shop);
     }
+
+    // Display the updated state.
+    displayShop(shop);
+}
 
     return 0;
 }
 
+
 void displayShop(const ShopData& shop) {
-    // Display each station and its three lists.
-    for (const auto& station : shop) {
-        cout << "\nStation: " << station.first << endl;
+    cout << "------------------------------\n";
 
-        for (int category = 0; category < 3; category++) {
-            if (category == 0)
-                cout << "Customers: ";
-            else if (category == 1)
-                cout << "Orders: ";
-            else
-                cout << "Statuses: ";
+    // Display stations in a consistent order
+    const string stations[] = {
+        "Order Line",
+        "Drink Preparation",
+        "Pickup Counter"
+    };
 
-            for (const string& item : station.second[category]) {
-                cout << item << ", ";
-            }
+    for (const string& name : stations) {
+        auto it = shop.find(name);
 
-            cout << endl;
+        if (it != shop.end()) {
+            size_t count = it->second[0].size();
+
+            cout << name << ": " << count
+                 << (count == 1 ? " customer" : " customers")
+                 << "\n";
         }
     }
+
+    cout << "------------------------------\n";
 }
 
 void moveCustomer(ShopData& shop, const string& from,
@@ -123,15 +205,13 @@ void moveCustomer(ShopData& shop, const string& from,
 }
 
 void simulateMinute(ShopData& shop, int minute) {
-    // Move a customer to drink preparation at minute 1.
-    if (minute == 1) {
-        moveCustomer(shop, "Order Line",
-                     "Drink Preparation", "Preparing");
+    for (int i = 0; i < 2; i++) {
+        moveCustomer(shop, "Order Line", "Drink Preparation",
+                     "Preparing");
     }
 
-    // Move the prepared drink to pickup at minute 2.
-    if (minute == 2) {
-        moveCustomer(shop, "Drink Preparation",
-                     "Pickup Counter", "Ready for pickup");
+    for (int i = 0; i < 2; i++) {
+        moveCustomer(shop, "Drink Preparation", "Pickup Counter",
+                     "Ready for Pickup");
     }
 }

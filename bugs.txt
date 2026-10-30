@@ -1,0 +1,65 @@
+# Lab 31 Bug Log
+
+## Bug 1: Duplicate function definition
+- **Problem:** The program had two definitions of `simulateMinute()`, causing a compilation error.
+- **Fix:** Removed the duplicate definition and kept only one implementation.
+
+## Bug 2: Missing newline at the end of the data file
+- **Problem:** `wc -l data.txt` reported 99 even though `awk 'END {print NR}' data.txt` reported 100 records.
+- **Fix:** Added a newline at the end of `data.txt` so the line count would correctly report 100.
+
+## Bug 3: Incorrect input filename
+- **Problem:** The program initially attempted to open `coffee_data.txt`, but the actual data file was named `data.txt`. This prevented the program from finding the input file.
+- **Fix:** Corrected the filename in the file-opening code to `data.txt` so the program could read the customer records.
+
+## Bug 4: Incomplete input records accepted
+- **Problem:** The program originally accepted records that were missing required fields, which could result in incomplete customer information.
+- **How it was found:** Tested the program with the line `Order Line,Broken Customer`.
+- **Fix:** Added input validation to check that the station, customer, order, and status fields are not empty. Invalid records are skipped with a warning message.
+- **Retest:** Confirmed that the invalid record was skipped and the initial customer count remained at 100.
+
+## Bug 5: Input Records with Extra Fields
+- **Problem:** The program accepted records containing more than four comma-separated fields.
+- **Cause:** The status field was read using `getline(ss, status)`, which consumed the rest of the line, including any extra fields.
+- **Fix:** Changed the status parsing to `getline(ss, status, ',')` so the program can check for additional fields afterward.
+- **Testing:** Tested with `Order Line,Alice,Latte,Waiting,EXTRA`. The program printed `Skipping invalid record` and the initial counts were 0 customers at all three stations.
+- **Status:** Fixed and passed testing.
+
+## Bug 6: Unknown Station Names Accepted
+- **Problem:** The program accepted records with station names outside the three intended coffee shop stations.
+- **Cause:** Input validation originally checked whether the station field was empty but did not verify whether the station name was valid.
+- **How it was found:** Tested with `Coffee Bar,Alice,Latte,Waiting`.
+- **Fix:** Added validation to allow only `Order Line`, `Drink Preparation`, and `Pickup Counter`.
+- **Testing:** Retested using `test_station.txt`. The program printed `Skipping invalid record` and displayed zero customers at all three stations.
+- **Status:** Fixed and passed testing.
+
+## Bug 7: Whitespace-only Fields Accepted
+- **Problem:** The program accepted customer records containing fields with only whitespace.
+- **Cause:** The original validation used `.empty()`, which does not detect strings containing spaces.
+- **How it was found:** Tested with `Order Line,   ,Latte,Waiting`.
+- **Fix:** Added a containsOnlySpaces() helper function using all_of() and isspace(). Updated input validation to reject fields that are empty or contain only whitespace.
+- **Testing:** Retested using test_spaces.txt. The program printed "Skipping invalid record" and displayed zero customers at all three stations.
+- **Status:** Fixed and passed testing.
+
+## Bug 8: Trailing Comma Accepted
+- **Problem:** The program accepted input records with an extra comma at the end.
+- **Cause:** The original extra-field validation did not detect an empty field after a trailing comma.
+- **How it was found:** Tested with `Order Line,Alice,Latte,Waiting,`.
+- **Fix:** Updated the validation to check whether the input line ends with a comma.
+- **Testing:** Retested using test_trailing_comma.txt. The program printed "Skipping invalid record" and displayed zero customers at all three stations.
+- **Status:** Fixed and passed testing.
+
+## Bug 9: Starting Station Ignored
+- **Problem:** The program originally ignored the starting station specified in `data.txt` and placed every arriving customer in Order Line.
+- **How it was found:** Tested a customer record with `Drink Preparation` as the starting station.
+- **Fix:** Added a station field to the `Customer` struct, stored each customer's assigned station, and placed arriving customers in that station.
+- **Testing:** Confirmed that Alice appeared in Drink Preparation at Minute 0 and moved to Pickup Counter at Minute 1.
+- **Status:** Fixed and passed testing.
+
+## Bug 10: Blank Input Line Handling
+- **Problem:** The program could attempt to access the last character of an empty input line when checking for a trailing comma.
+- **Cause:** Calling `line.back()` on an empty string can cause undefined behavior.
+- **How it was found:** Tested the program with a blank line at the beginning of `data.txt`.
+- **Fix:** Added `!line.empty()` before checking `line.back()` to ensure the string is not empty.
+- **Testing:** The program printed `Skipping invalid record` for the blank line and continued processing all 100 valid customer records.
+- **Status:** Fixed and passed testing.

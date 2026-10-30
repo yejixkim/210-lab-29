@@ -65,3 +65,31 @@ int main() {
 
     return 0;
 }
+
+## Test: Customer Count Consistency
+- **Purpose:** Verify that moving customers between stations does not change the total number of customers.
+- **Procedure:** Run the simulation for 25 minutes and add the customer counts from Order Line, Drink Preparation, and Pickup Counter.
+- **Expected Result:** The total remains 100 customers.
+- **Actual Result:** At Minute 25, there were 87 customers in Order Line, 1 in Drink Preparation, and 12 at Pickup Counter, totaling 100.
+- **Status:** Passed
+
+## Test: Empty Order Line
+- **Purpose:** Verify that the simulation handles an empty station without crashing.
+- **Procedure:** Run the simulation with a test file containing only one customer, then observe what happens after that customer leaves the Order Line.
+- **Expected Result:** The simulation continues without errors when the Order Line is empty.
+- **Actual Result:** Alice moved to Drink Preparation at Minute 1 and Pickup Counter at Minute 2. The simulation continued through Minute 25 without crashing.
+- **Status:** Passed
+
+## Test: Regression Test After Empty-Queue Test
+- **Purpose:** Verify that restoring the original input file preserves the main simulation's behavior.
+- **Procedure:** Compile and run the program using `data.txt` after completing the empty Order Line test.
+- **Expected Result:** The program loads 100 customers, simulates 25 minutes, and preserves the total customer count.
+- **Actual Result:** The initial state contained 100 customers. At Minute 25, 87 were in Order Line, 1 was in Drink Preparation, and 12 were at Pickup Counter, totaling 100.
+- **Status:** Passed
+
+## Test: Extra Field in Input Record
+- **Purpose:** Check whether the program detects records containing more than four comma-separated fields.
+- **Procedure:** Run the simulation using a test file containing `Order Line,Alice,Latte,Waiting,EXTRA`.
+- **Expected Result:** A record with an unexpected extra field should be rejected if input validation requires exactly four fields.
+- **Actual Result:** The program accepted the record and processed Alice's order.
+- **Status:** Issue identified — extra fields are not validated.
